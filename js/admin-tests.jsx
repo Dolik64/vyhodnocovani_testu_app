@@ -116,44 +116,40 @@ function TestsPage() {
         )}
       </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={function(e) { if (e.target === e.currentTarget) setShowModal(false); }}>
-          <div className="modal modal-large fade-in">
-            <h2>Nahrát nový test</h2>
-            {error && <div className="error-msg">{error}</div>}
+      <Modal open={showModal} onClose={function() { setShowModal(false); }} large>
+        <h2>Nahrát nový test</h2>
+        {error && <div className="error-msg">{error}</div>}
 
-            <div className="form-group">
-              <label>Nahrát JSON soubor</label>
-              <div className="file-upload-zone" onClick={function() { document.getElementById('jsonUpload').click(); }}>
-                <input id="jsonUpload" type="file" accept=".json" onChange={handleFileUpload} />
-                <p style={{color:'var(--text-muted)'}}>📁 Klikněte pro výběr JSON souboru</p>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Název testu</label>
-              <input className="form-input" placeholder="Matematika 5 – Varianta A"
-                value={testName} onChange={function(e) { setTestName(e.target.value); }} />
-            </div>
-
-            <div className="form-group">
-              <label>Odpovědi (JSON) — nebo vložte ručně</label>
-              <textarea className="json-textarea" placeholder='{"1.1": {"answer": "42", "points": 2}, ...}'
-                value={jsonText} onChange={function(e) { setJsonText(e.target.value); }} />
-            </div>
-
-            <div style={{display:'flex', gap:'10px', marginTop:'24px'}}>
-              <button className="btn btn-secondary" onClick={function() { setShowModal(false); setError(''); }} style={{flex:1}}>
-                Zrušit
-              </button>
-              <button className="btn btn-primary" onClick={saveTest}
-                disabled={saving || !testName || !jsonText} style={{flex:1, width:'auto'}}>
-                {saving ? 'Ukládám…' : 'Uložit test'}
-              </button>
-            </div>
+        <div className="form-group">
+          <label>Nahrát JSON soubor</label>
+          <div className="file-upload-zone" onClick={function() { document.getElementById('jsonUpload').click(); }}>
+            <input id="jsonUpload" type="file" accept=".json" onChange={handleFileUpload} />
+            <p style={{color:'var(--text-muted)'}}>📁 Klikněte pro výběr JSON souboru</p>
           </div>
         </div>
-      )}
+
+        <div className="form-group">
+          <label>Název testu</label>
+          <input className="form-input" placeholder="Matematika 5 – Varianta A"
+            value={testName} onChange={function(e) { setTestName(e.target.value); }} />
+        </div>
+
+        <div className="form-group">
+          <label>Odpovědi (JSON) — nebo vložte ručně</label>
+          <textarea className="json-textarea" placeholder='{"1.1": {"answer": "42", "points": 2}, ...}'
+            value={jsonText} onChange={function(e) { setJsonText(e.target.value); }} />
+        </div>
+
+        <div style={{display:'flex', gap:'10px', marginTop:'24px'}}>
+          <button className="btn btn-secondary" onClick={function() { setShowModal(false); setError(''); }} style={{flex:1}}>
+            Zrušit
+          </button>
+          <button className="btn btn-primary" onClick={saveTest}
+            disabled={saving || !testName || !jsonText} style={{flex:1, width:'auto'}}>
+            {saving ? 'Ukládám…' : 'Uložit test'}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

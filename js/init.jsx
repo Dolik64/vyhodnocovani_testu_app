@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 // React hooks (var = globální, dostupné ve všech souborech)
-var { useState, useEffect, useCallback, useMemo, createContext, useContext } = React;
+var { useState, useEffect, useCallback, useMemo, useRef, createContext, useContext } = React;
 
 // Firebase
 var app = firebase.initializeApp(firebaseConfig);

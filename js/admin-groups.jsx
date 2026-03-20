@@ -89,44 +89,40 @@ function GroupsPage() {
         )}
       </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={function(e) { if (e.target === e.currentTarget) setShowModal(false); }}>
-          <div className="modal fade-in">
-            <h2>Nová skupina</h2>
-            <div className="form-group">
-              <label>Název skupiny</label>
-              <input className="form-input" placeholder="5. ročník – sada A"
-                value={groupName} onChange={function(e) { setGroupName(e.target.value); }} />
-            </div>
-            <div className="form-group">
-              <label>Učitelé</label>
-              {users.map(function(u) { return (
-                <label key={u.id} style={{display:'flex', alignItems:'center', gap:'8px', padding:'6px 0', cursor:'pointer', fontSize:'14px'}}>
-                  <input type="checkbox" checked={selectedUsers.includes(u.id)}
-                    onChange={function() { toggleItem(selectedUsers, setSelectedUsers, u.id); }} />
-                  {u.name || u.email}
-                </label>
-              ); })}
-              {users.length === 0 && <p style={{color:'var(--text-muted)', fontSize:'13px'}}>Žádní učitelé.</p>}
-            </div>
-            <div className="form-group">
-              <label>Testy</label>
-              {tests.map(function(t) { return (
-                <label key={t.id} style={{display:'flex', alignItems:'center', gap:'8px', padding:'6px 0', cursor:'pointer', fontSize:'14px'}}>
-                  <input type="checkbox" checked={selectedTests.includes(t.id)}
-                    onChange={function() { toggleItem(selectedTests, setSelectedTests, t.id); }} />
-                  {t.name}
-                </label>
-              ); })}
-              {tests.length === 0 && <p style={{color:'var(--text-muted)', fontSize:'13px'}}>Žádné testy.</p>}
-            </div>
-            <div style={{display:'flex', gap:'10px', marginTop:'24px'}}>
-              <button className="btn btn-secondary" onClick={function() { setShowModal(false); }} style={{flex:1}}>Zrušit</button>
-              <button className="btn btn-primary" onClick={saveGroup} disabled={!groupName} style={{flex:1, width:'auto'}}>Uložit</button>
-            </div>
-          </div>
+      <Modal open={showModal} onClose={function() { setShowModal(false); }}>
+        <h2>Nová skupina</h2>
+        <div className="form-group">
+          <label>Název skupiny</label>
+          <input className="form-input" placeholder="5. ročník – sada A"
+            value={groupName} onChange={function(e) { setGroupName(e.target.value); }} />
         </div>
-      )}
+        <div className="form-group">
+          <label>Učitelé</label>
+          {users.map(function(u) { return (
+            <label key={u.id} style={{display:'flex', alignItems:'center', gap:'8px', padding:'6px 0', cursor:'pointer', fontSize:'14px'}}>
+              <input type="checkbox" checked={selectedUsers.includes(u.id)}
+                onChange={function() { toggleItem(selectedUsers, setSelectedUsers, u.id); }} />
+              {u.name || u.email}
+            </label>
+          ); })}
+          {users.length === 0 && <p style={{color:'var(--text-muted)', fontSize:'13px'}}>Žádní učitelé.</p>}
+        </div>
+        <div className="form-group">
+          <label>Testy</label>
+          {tests.map(function(t) { return (
+            <label key={t.id} style={{display:'flex', alignItems:'center', gap:'8px', padding:'6px 0', cursor:'pointer', fontSize:'14px'}}>
+              <input type="checkbox" checked={selectedTests.includes(t.id)}
+                onChange={function() { toggleItem(selectedTests, setSelectedTests, t.id); }} />
+              {t.name}
+            </label>
+          ); })}
+          {tests.length === 0 && <p style={{color:'var(--text-muted)', fontSize:'13px'}}>Žádné testy.</p>}
+        </div>
+        <div style={{display:'flex', gap:'10px', marginTop:'24px'}}>
+          <button className="btn btn-secondary" onClick={function() { setShowModal(false); }} style={{flex:1}}>Zrušit</button>
+          <button className="btn btn-primary" onClick={saveGroup} disabled={!groupName} style={{flex:1, width:'auto'}}>Uložit</button>
+        </div>
+      </Modal>
     </div>
   );
 }

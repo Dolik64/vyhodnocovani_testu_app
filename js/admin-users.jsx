@@ -99,47 +99,43 @@ function UsersPage() {
         </table>
       </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={function(e) { if (e.target === e.currentTarget) setShowModal(false); }}>
-          <div className="modal fade-in">
-            <h2>Nový uživatel</h2>
-            {error && <div className="error-msg">{error}</div>}
-            <div className="form-group">
-              <label>Jméno</label>
-              <input className="form-input" placeholder="Jan Novák"
-                value={newUser.name} onChange={function(e) { setNewUser({...newUser, name: e.target.value}); }} />
-            </div>
-            <div className="form-group">
-              <label>Email</label>
-              <input className="form-input" type="email" placeholder="jan@skola.cz"
-                value={newUser.email} onChange={function(e) { setNewUser({...newUser, email: e.target.value}); }} />
-            </div>
-            <div className="form-group">
-              <label>Heslo</label>
-              <input className="form-input" type="text" placeholder="min. 6 znaků"
-                value={newUser.password} onChange={function(e) { setNewUser({...newUser, password: e.target.value}); }} />
-            </div>
-            <div className="form-group">
-              <label>Role</label>
-              <select className="form-select" value={newUser.role}
-                onChange={function(e) { setNewUser({...newUser, role: e.target.value}); }}>
-                <option value="teacher">Učitel</option>
-                <option value="admin">Administrátor</option>
-              </select>
-            </div>
-            <div style={{display:'flex', gap:'10px', marginTop:'24px'}}>
-              <button className="btn btn-secondary" onClick={function() { setShowModal(false); }} style={{flex:1}}>
-                Zrušit
-              </button>
-              <button className="btn btn-primary" onClick={createUser}
-                disabled={creating || !newUser.email || !newUser.password}
-                style={{flex:1, width:'auto'}}>
-                {creating ? 'Vytvářím…' : 'Vytvořit'}
-              </button>
-            </div>
-          </div>
+      <Modal open={showModal} onClose={function() { setShowModal(false); }}>
+        <h2>Nový uživatel</h2>
+        {error && <div className="error-msg">{error}</div>}
+        <div className="form-group">
+          <label>Jméno</label>
+          <input className="form-input" placeholder="Jan Novák"
+            value={newUser.name} onChange={function(e) { setNewUser({...newUser, name: e.target.value}); }} />
         </div>
-      )}
+        <div className="form-group">
+          <label>Email</label>
+          <input className="form-input" type="email" placeholder="jan@skola.cz"
+            value={newUser.email} onChange={function(e) { setNewUser({...newUser, email: e.target.value}); }} />
+        </div>
+        <div className="form-group">
+          <label>Heslo</label>
+          <input className="form-input" type="text" placeholder="min. 6 znaků"
+            value={newUser.password} onChange={function(e) { setNewUser({...newUser, password: e.target.value}); }} />
+        </div>
+        <div className="form-group">
+          <label>Role</label>
+          <select className="form-select" value={newUser.role}
+            onChange={function(e) { setNewUser({...newUser, role: e.target.value}); }}>
+            <option value="teacher">Učitel</option>
+            <option value="admin">Administrátor</option>
+          </select>
+        </div>
+        <div style={{display:'flex', gap:'10px', marginTop:'24px'}}>
+          <button className="btn btn-secondary" onClick={function() { setShowModal(false); }} style={{flex:1}}>
+            Zrušit
+          </button>
+          <button className="btn btn-primary" onClick={createUser}
+            disabled={creating || !newUser.email || !newUser.password}
+            style={{flex:1, width:'auto'}}>
+            {creating ? 'Vytvářím…' : 'Vytvořit'}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

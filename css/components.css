@@ -126,47 +126,35 @@
 .badge-teacher { background: var(--accent-light); color: var(--accent); }
 
 /* ═══════════════════════════════════════════════════════════
-   MODAL — OPRAVENÁ VERZE
-   
-   Problém: margin na .modal způsoboval oříznutí nahoře,
-   protože prohlížeč nemůže scrollovat k prostoru NAD marginem.
-   
-   Řešení:
-   1) Overlay = flex + align-items: flex-start (ne center!)
-   2) Spacing řeší PADDING na overlay (ne margin na modálu)
-   3) flex-shrink: 0 na modálu — nezmenší se, overlay scrolluje
+   MODÁLNÍ OKNO — nativní <dialog> element
+   Prohlížeč řeší VŠECHNO: pozicování, scroll, backdrop.
+   Žádné position:fixed, žádný flex, žádný overflow hack.
    ═══════════════════════════════════════════════════════════ */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 1000;
-  overflow-y: auto;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 40px 24px;
+dialog.modal-dialog {
+  border: none;
+  border-radius: 16px;
+  padding: 0;
+  max-width: 640px;
+  width: calc(100% - 48px);
+  background: transparent;
+  overflow: visible;
 }
-
-.modal {
+dialog.modal-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+dialog.modal-dialog-large {
+  max-width: 1200px;
+}
+.modal-dialog-body {
   background: var(--bg-card);
   border-radius: 16px;
   padding: 32px;
-  width: 100%;
-  max-width: 640px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  flex-shrink: 0;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
-
-.modal h2 {
+.modal-dialog-body h2 {
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 20px;
-}
-
-/* Velký modál */
-.modal.modal-large {
-  max-width: 1200px;
 }
 
 /* Select dropdown */
