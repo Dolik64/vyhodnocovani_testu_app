@@ -606,11 +606,10 @@ body {
   inset: 0;
   background: rgba(0,0,0,0.5);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 20px;
-  overflow-y: auto;
 }
 .modal {
   background: var(--bg-card);
@@ -618,9 +617,9 @@ body {
   padding: 32px;
   width: 100%;
   max-width: 500px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  margin: auto 0;
-  flex-shrink: 0;
 }
 .modal h2 {
   font-size: 20px;
