@@ -127,8 +127,6 @@
 
 /* ═══════════════════════════════════════════════════════════
    MODÁLNÍ OKNO — nativní <dialog> element
-   Prohlížeč řeší VŠECHNO: pozicování, scroll, backdrop.
-   Žádné position:fixed, žádný flex, žádný overflow hack.
    ═══════════════════════════════════════════════════════════ */
 dialog.modal-dialog {
   border: none;
@@ -138,6 +136,10 @@ dialog.modal-dialog {
   width: calc(100% - 48px);
   background: transparent;
   overflow: visible;
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  height: fit-content;
 }
 dialog.modal-dialog::backdrop {
   background: rgba(0, 0, 0, 0.5);
