@@ -125,55 +125,60 @@
 .badge-admin { background: #ede9fe; color: #7c3aed; }
 .badge-teacher { background: var(--accent-light); color: var(--accent); }
 
-/* Modal - ZDE JSOU ZMĚNY! */
+/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.5);
   display: flex;
-  align-items: center; /* Zarovnání na střed všude */
+  align-items: center; /* Nyní 100% zafunguje, protože okno neuteče */
   justify-content: center;
   z-index: 1000;
   padding: 24px;
 }
+
 .modal {
   background: var(--bg-card);
   border-radius: 16px;
   padding: 32px;
   width: 100%;
   max-width: 640px;
-  max-height: calc(100vh - 48px); /* Aby okno nepřeteklo obrazovku */
-  overflow-y: auto; /* Scrollování uvnitř okna */
+  max-height: calc(100vh - 48px); /* Striktní max. výška pro běžné modaly */
+  overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
 }
+
 .modal h2 {
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 20px;
+  flex-shrink: 0; /* Zabrání zmenšování hlavičky */
 }
 
-/* Velký modál pro JSON - ZDE JSOU ZMĚNY PRO FLEXIBILITU! */
+/* Velký modál pro JSON - fixní chování na obrazovce */
 .modal.modal-large {
   max-width: 1200px;
   width: 95%;
-  height: auto; /* Výška se přizpůsobí max-height z .modal */
-  display: flex;
-  flex-direction: column;
+  height: 90vh; /* Natvrdo si vezme 90% výšky obrazovky */
+  overflow: hidden; /* Vypne scrollování celého okna, budeme scrollovat jen textareu */
 }
 
-/* Upravíme form-group obsahující textarea ve velkém modálu */
+/* Flexibilní vrstva pro třetí form-group (textarea s JSONem) */
 .modal.modal-large > .form-group:nth-of-type(3) {
-  flex-grow: 1; /* Tato skupina se roztáhne */
+  flex: 1; /* Roztáhne se na zbytek okna */
   display: flex;
   flex-direction: column;
-  margin-bottom: 12px;
+  min-height: 0; /* Kritický trik, brání přetečení ve flexboxu! */
+  margin-bottom: 0;
 }
 
-/* Textarea ve velkém modálu vyplní prostor */
+/* Textarea se dokonale přizpůsobí zbývajícímu místu */
 .modal.modal-large .json-textarea {
-  flex-grow: 1; /* Vyplní zbývající prostor ve skupině */
-  min-height: 200px; /* Reset old Jirka's Jira height Jira previously turn Jira old Jira created Jira turn Jirka created turn */
-  resize: vertical; /* User can still resize. */
+  flex: 1;
+  min-height: 0; 
+  resize: none; /* Uživatel už to nemusí tahat, přizpůsobuje se to samo */
 }
 
 /* Select dropdown */
@@ -194,10 +199,10 @@
   box-shadow: 0 0 0 3px rgba(13,148,136,0.12);
 }
 
-/* JSON textarea */
+/* Běžná JSON textarea mimo modal-large (kdyby se použila jinde) */
 .json-textarea {
   width: 100%;
-  min-height: 200px; /* Base min height is fine, flexible in large modal. */
+  min-height: 200px;
   padding: 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
