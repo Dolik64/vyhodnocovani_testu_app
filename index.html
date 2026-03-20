@@ -22,13 +22,24 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Konfigurace aplikace (Firebase, branding, struktura archu) -->
+  <!-- Konfigurace (plain JS, načítá se první) -->
   <script src="js/config.js"></script>
 </head>
 <body>
   <div id="root"></div>
 
-  <!-- Hlavní aplikace -->
+  <!--
+    POŘADÍ SOUBORŮ JE DŮLEŽITÉ!
+    config.js → init → auth → sidebar → admin stránky → buňky → evaluate → app
+  -->
+  <script type="text/babel" src="js/init.jsx"></script>
+  <script type="text/babel" src="js/auth.jsx"></script>
+  <script type="text/babel" src="js/sidebar.jsx"></script>
+  <script type="text/babel" src="js/admin-users.jsx"></script>
+  <script type="text/babel" src="js/admin-tests.jsx"></script>
+  <script type="text/babel" src="js/admin-groups.jsx"></script>
+  <script type="text/babel" src="js/task-cells.jsx"></script>
+  <script type="text/babel" src="js/evaluate.jsx"></script>
   <script type="text/babel" src="js/app.jsx"></script>
 </body>
 </html>
