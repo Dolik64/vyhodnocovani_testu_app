@@ -1,4 +1,4 @@
-FOLDER DUMP - 2026-03-20 12:44:01.081075
+FOLDER DUMP - 2026-03-20 12:55:14.021643
 ================================================================================
 
 DIRECTORY TREE
@@ -688,18 +688,18 @@ body {
   inset: 0;
   background: rgba(0,0,0,0.5);
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: center;
   z-index: 1000;
-  padding: 60px 20px 40px;
-  overflow-y: auto;
+  padding: 24px;
 }
 .modal {
   background: var(--bg-card);
   border-radius: 16px;
   padding: 32px;
   width: 100%;
-  max-width: 500px;
+  max-width: 640px;
+  overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
 .modal h2 {
