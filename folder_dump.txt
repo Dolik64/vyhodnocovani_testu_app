@@ -1,4 +1,4 @@
-FOLDER DUMP - 2026-03-20 13:29:37.946624
+FOLDER DUMP - 2026-03-20 13:54:11.042644
 ================================================================================
 
 DIRECTORY TREE
@@ -290,43 +290,36 @@ FILE: css/components.css
 .badge-admin { background: #ede9fe; color: #7c3aed; }
 .badge-teacher { background: var(--accent-light); color: var(--accent); }
 
-/* Modal */
+/* Modal - ČISTÉ A NEPRŮSTŘELNÉ ŘEŠENÍ */
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
   z-index: 1000;
+  overflow-y: auto; /* Scrollování je nyní na celém tmavém pozadí */
   padding: 24px;
+  display: block; /* Odstraněn Flexbox, který působil odříznutí */
 }
+
 .modal {
   background: var(--bg-card);
   border-radius: 16px;
   padding: 32px;
   width: 100%;
   max-width: 640px;
-  overflow-y: auto;
+  margin: 10vh auto; /* Odskočí 10 % z horní hrany obrazovky, vycentruje se zleva/zprava */
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
+
 .modal h2 {
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 20px;
 }
 
+/* Velký modál */
 .modal.modal-large {
   max-width: 1200px;
-  width: 95%;
-  min-height: 85vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal.modal-large .json-textarea {
-  min-height: 50vh;
-  resize: vertical;
 }
 
 /* Select dropdown */
@@ -350,7 +343,7 @@ FILE: css/components.css
 /* JSON textarea */
 .json-textarea {
   width: 100%;
-  min-height: 200px;
+  min-height: 400px; /* Vyšší základní výška pro lepší editaci, ale bez rizika useknutí */
   padding: 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
@@ -401,7 +394,6 @@ FILE: css/components.css
   background: var(--accent-light);
 }
 .file-upload-zone input { display: none; }
-
 --------------------------------------------------------------------------------
 
 FILE: css/evaluate.css

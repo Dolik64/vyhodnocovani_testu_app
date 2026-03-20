@@ -125,15 +125,27 @@
 .badge-admin { background: #ede9fe; color: #7c3aed; }
 .badge-teacher { background: var(--accent-light); color: var(--accent); }
 
-/* Modal - ČISTÉ A NEPRŮSTŘELNÉ ŘEŠENÍ */
+/* ═══════════════════════════════════════════════════════════
+   MODAL — OPRAVENÁ VERZE
+   
+   Problém: margin na .modal způsoboval oříznutí nahoře,
+   protože prohlížeč nemůže scrollovat k prostoru NAD marginem.
+   
+   Řešení:
+   1) Overlay = flex + align-items: flex-start (ne center!)
+   2) Spacing řeší PADDING na overlay (ne margin na modálu)
+   3) flex-shrink: 0 na modálu — nezmenší se, overlay scrolluje
+   ═══════════════════════════════════════════════════════════ */
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.5);
   z-index: 1000;
-  overflow-y: auto; /* Scrollování je nyní na celém tmavém pozadí */
-  padding: 24px;
-  display: block; /* Odstraněn Flexbox, který působil odříznutí */
+  overflow-y: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 24px;
 }
 
 .modal {
@@ -142,8 +154,8 @@
   padding: 32px;
   width: 100%;
   max-width: 640px;
-  margin: 10vh auto; /* Odskočí 10 % z horní hrany obrazovky, vycentruje se zleva/zprava */
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  flex-shrink: 0;
 }
 
 .modal h2 {
@@ -178,7 +190,7 @@
 /* JSON textarea */
 .json-textarea {
   width: 100%;
-  min-height: 400px; /* Vyšší základní výška pro lepší editaci, ale bez rizika useknutí */
+  min-height: 400px;
   padding: 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
