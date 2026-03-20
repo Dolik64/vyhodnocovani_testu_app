@@ -125,13 +125,13 @@
 .badge-admin { background: #ede9fe; color: #7c3aed; }
 .badge-teacher { background: var(--accent-light); color: var(--accent); }
 
-/* Modal */
+/* Modal - ZDE JSOU ZMĚNY! */
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.5);
   display: flex;
-  align-items: center;
+  align-items: center; /* Zarovnání na střed všude */
   justify-content: center;
   z-index: 1000;
   padding: 24px;
@@ -142,7 +142,8 @@
   padding: 32px;
   width: 100%;
   max-width: 640px;
-  overflow-y: auto;
+  max-height: calc(100vh - 48px); /* Aby okno nepřeteklo obrazovku */
+  overflow-y: auto; /* Scrollování uvnitř okna */
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
 .modal h2 {
@@ -151,17 +152,28 @@
   margin-bottom: 20px;
 }
 
+/* Velký modál pro JSON - ZDE JSOU ZMĚNY PRO FLEXIBILITU! */
 .modal.modal-large {
   max-width: 1200px;
   width: 95%;
-  min-height: 85vh;
+  height: auto; /* Výška se přizpůsobí max-height z .modal */
   display: flex;
   flex-direction: column;
 }
 
+/* Upravíme form-group obsahující textarea ve velkém modálu */
+.modal.modal-large > .form-group:nth-of-type(3) {
+  flex-grow: 1; /* Tato skupina se roztáhne */
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+/* Textarea ve velkém modálu vyplní prostor */
 .modal.modal-large .json-textarea {
-  min-height: 50vh;
-  resize: vertical;
+  flex-grow: 1; /* Vyplní zbývající prostor ve skupině */
+  min-height: 200px; /* Reset old Jirka's Jira height Jira previously turn Jira old Jira created Jira turn Jirka created turn */
+  resize: vertical; /* User can still resize. */
 }
 
 /* Select dropdown */
@@ -185,7 +197,7 @@
 /* JSON textarea */
 .json-textarea {
   width: 100%;
-  min-height: 200px;
+  min-height: 200px; /* Base min height is fine, flexible in large modal. */
   padding: 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
