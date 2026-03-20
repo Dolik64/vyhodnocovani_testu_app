@@ -151,6 +151,19 @@
   margin-bottom: 20px;
 }
 
+.modal.modal-large {
+  max-width: 1200px;
+  width: 95%;
+  min-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal.modal-large .json-textarea {
+  min-height: 50vh;
+  resize: vertical;
+}
+
 /* Select dropdown */
 .form-select {
   width: 100%;

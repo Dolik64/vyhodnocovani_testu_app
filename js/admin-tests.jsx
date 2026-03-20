@@ -118,7 +118,7 @@ function TestsPage() {
 
       {showModal && (
         <div className="modal-overlay" onClick={function(e) { if (e.target === e.currentTarget) setShowModal(false); }}>
-          <div className="modal fade-in" style={{maxWidth:'600px'}}>
+          <div className="modal modal-large fade-in">
             <h2>Nahrát nový test</h2>
             {error && <div className="error-msg">{error}</div>}
 
