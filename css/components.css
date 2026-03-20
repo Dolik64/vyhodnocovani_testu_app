@@ -125,16 +125,15 @@
 .badge-admin { background: #ede9fe; color: #7c3aed; }
 .badge-teacher { background: var(--accent-light); color: var(--accent); }
 
-/* Modal */
+/* Modal - ČISTÉ A NEPRŮSTŘELNÉ ŘEŠENÍ */
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center; /* Nyní 100% zafunguje, protože okno neuteče */
-  justify-content: center;
   z-index: 1000;
+  overflow-y: auto; /* Scrollování je nyní na celém tmavém pozadí */
   padding: 24px;
+  display: block; /* Odstraněn Flexbox, který působil odříznutí */
 }
 
 .modal {
@@ -143,42 +142,19 @@
   padding: 32px;
   width: 100%;
   max-width: 640px;
-  max-height: calc(100vh - 48px); /* Striktní max. výška pro běžné modaly */
-  overflow-y: auto;
+  margin: 10vh auto; /* Odskočí 10 % z horní hrany obrazovky, vycentruje se zleva/zprava */
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  display: flex;
-  flex-direction: column;
 }
 
 .modal h2 {
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 20px;
-  flex-shrink: 0; /* Zabrání zmenšování hlavičky */
 }
 
-/* Velký modál pro JSON - fixní chování na obrazovce */
+/* Velký modál */
 .modal.modal-large {
   max-width: 1200px;
-  width: 95%;
-  height: 90vh; /* Natvrdo si vezme 90% výšky obrazovky */
-  overflow: hidden; /* Vypne scrollování celého okna, budeme scrollovat jen textareu */
-}
-
-/* Flexibilní vrstva pro třetí form-group (textarea s JSONem) */
-.modal.modal-large > .form-group:nth-of-type(3) {
-  flex: 1; /* Roztáhne se na zbytek okna */
-  display: flex;
-  flex-direction: column;
-  min-height: 0; /* Kritický trik, brání přetečení ve flexboxu! */
-  margin-bottom: 0;
-}
-
-/* Textarea se dokonale přizpůsobí zbývajícímu místu */
-.modal.modal-large .json-textarea {
-  flex: 1;
-  min-height: 0; 
-  resize: none; /* Uživatel už to nemusí tahat, přizpůsobuje se to samo */
 }
 
 /* Select dropdown */
@@ -199,10 +175,10 @@
   box-shadow: 0 0 0 3px rgba(13,148,136,0.12);
 }
 
-/* Běžná JSON textarea mimo modal-large (kdyby se použila jinde) */
+/* JSON textarea */
 .json-textarea {
   width: 100%;
-  min-height: 200px;
+  min-height: 400px; /* Vyšší základní výška pro lepší editaci, ale bez rizika useknutí */
   padding: 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
