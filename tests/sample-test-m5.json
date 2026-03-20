@@ -1,0 +1,31 @@
+{
+  "name": "Matematika 5 – Varianta A (UKÁZKA)",
+  "answers": {
+    "1.1": { "answer": "42", "points": 2 },
+    "1.2": { "answer": "156", "points": 3 },
+    "2.1": { "answer": "3 450", "points": 2 },
+    "2.2": { "answer": "87", "points": 2 },
+    "3.1": { "answer": "1/4", "points": 3 },
+    "3.2": { "answer": "720", "points": 3 },
+    "4.1": { "answer": "25 cm", "points": 2 },
+    "4.2": { "answer": "64", "points": 2 },
+    "5.1": { "answer": "120 Kč", "points": 3 },
+    "5.2": { "answer": "8", "points": 2 },
+    "6.1": { "answer": "15", "points": 2 },
+    "6.2": { "answer": "3,5", "points": 2 },
+    "6.3": { "answer": "900", "points": 2 },
+    "7":   { "answer": null, "points": 5 },
+    "8.1": { "answer": "A", "points": 1 },
+    "8.2": { "answer": "N", "points": 1 },
+    "8.3": { "answer": "A", "points": 1 },
+    "9":   { "answer": "C", "points": 2 },
+    "10":  { "answer": "A", "points": 2 },
+    "11":  { "answer": "D", "points": 2 },
+    "12":  { "answer": "B", "points": 2 },
+    "13.1": { "answer": "60", "points": 3 },
+    "13.2": { "answer": "24", "points": 3 },
+    "14.1": { "answer": "350", "points": 2 },
+    "14.2": { "answer": "7,5", "points": 2 },
+    "14.3": { "answer": "1 200", "points": 3 }
+  }
+}
