@@ -1,0 +1,180 @@
+// ═══════════════════════════════════════════════════════════════
+// MOCK FIREBASE — simuluje Auth + Firestore v paměti
+// Pro lokální testování bez internetu.
+// ═══════════════════════════════════════════════════════════════
+
+(function() {
+
+  // ─── Fake data ───
+  var mockUsers = {
+    "admin-uid-001": {
+      email: "admin@test.cz",
+      name: "Admin Testovací",
+      role: "admin",
+      createdAt: new Date()
+    },
+    "teacher-uid-001": {
+      email: "ucitel@test.cz",
+      name: "Jan Učitel",
+      role: "teacher",
+      createdAt: new Date()
+    }
+  };
+
+  var mockPasswords = {
+    "admin@test.cz": { password: "admin1", uid: "admin-uid-001" },
+    "ucitel@test.cz": { password: "ucitel1", uid: "teacher-uid-001" }
+  };
+
+  var mockTests = {};
+  var mockGroups = {};
+  var idCounter = 1000;
+
+  function nextId() { return "mock-" + (++idCounter); }
+
+  // ─── Collections storage ───
+  var collections = {
+    users: mockUsers,
+    tests: mockTests,
+    groups: mockGroups
+  };
+
+  // ─── Fake Firestore Document ───
+  function makeDoc(id, data) {
+    return {
+      id: id,
+      exists: data !== undefined,
+      data: function() { return data ? JSON.parse(JSON.stringify(data)) : undefined; }
+    };
+  }
+
+  function makeSnapshot(collectionName, filter) {
+    var col = collections[collectionName] || {};
+    var docs = [];
+    Object.keys(col).forEach(function(id) {
+      var d = col[id];
+      if (filter && !filter(d)) return;
+      docs.push(makeDoc(id, d));
+    });
+    return { docs: docs };
+  }
+
+  // ─── Fake Firestore Query ───
+  function FakeQuery(collectionName) {
+    this._col = collectionName;
+    this._filters = [];
+    this._orderField = null;
+  }
+
+  FakeQuery.prototype.where = function(field, op, value) {
+    var q = new FakeQuery(this._col);
+    q._filters = this._filters.concat([{ field: field, op: op, value: value }]);
+    q._orderField = this._orderField;
+    return q;
+  };
+
+  FakeQuery.prototype.orderBy = function(field, dir) {
+    var q = new FakeQuery(this._col);
+    q._filters = this._filters.slice();
+    q._orderField = field;
+    return q;
+  };
+
+  FakeQuery.prototype.get = function() {
+    var filters = this._filters;
+    var filterFn = function(d) {
+      return filters.every(function(f) {
+        var val = d[f.field];
+        if (f.op === '==') return val === f.value;
+        if (f.op === 'array-contains') return Array.isArray(val) && val.indexOf(f.value) !== -1;
+        return true;
+      });
+    };
+    return Promise.resolve(makeSnapshot(this._col, filterFn));
+  };
+
+  FakeQuery.prototype.doc = function(id) {
+    var col = this._col;
+    return {
+      get: function() {
+        var data = collections[col] ? collections[col][id] : undefined;
+        return Promise.resolve(makeDoc(id, data));
+      },
+      set: function(data) {
+        if (!collections[col]) collections[col] = {};
+        collections[col][id] = JSON.parse(JSON.stringify(data));
+        return Promise.resolve();
+      },
+      delete: function() {
+        if (collections[col]) delete collections[col][id];
+        return Promise.resolve();
+      }
+    };
+  };
+
+  FakeQuery.prototype.add = function(data) {
+    var id = nextId();
+    var col = this._col;
+    if (!collections[col]) collections[col] = {};
+    collections[col][id] = JSON.parse(JSON.stringify(data));
+    return Promise.resolve({ id: id });
+  };
+
+  // ─── Fake Auth ───
+  var currentUser = null;
+  var authListeners = [];
+
+  function notifyAuth() {
+    authListeners.forEach(function(fn) { fn(currentUser); });
+  }
+
+  var fakeAuth = {
+    onAuthStateChanged: function(fn) {
+      authListeners.push(fn);
+      setTimeout(function() { fn(currentUser); }, 50);
+      return function() {
+        authListeners = authListeners.filter(function(f) { return f !== fn; });
+      };
+    },
+    signInWithEmailAndPassword: function(email, password) {
+      var entry = mockPasswords[email];
+      if (!entry) return Promise.reject({ code: 'auth/user-not-found' });
+      if (entry.password !== password) return Promise.reject({ code: 'auth/wrong-password' });
+      currentUser = { uid: entry.uid, email: email };
+      notifyAuth();
+      return Promise.resolve({ user: currentUser });
+    },
+    signOut: function() {
+      currentUser = null;
+      notifyAuth();
+      return Promise.resolve();
+    },
+    createUserWithEmailAndPassword: function(email, password) {
+      var uid = nextId();
+      mockPasswords[email] = { password: password, uid: uid };
+      return Promise.resolve({ user: { uid: uid, email: email } });
+    }
+  };
+
+  // ─── Fake Firestore ───
+  var fakeFirestore = {
+    collection: function(name) { return new FakeQuery(name); }
+  };
+
+  // ─── Fake Firebase global ───
+  window.firebase = {
+    initializeApp: function() { return {}; },
+    auth: function() { return fakeAuth; },
+    firestore: function() { return fakeFirestore; },
+    firestore: (function() {
+      var fn = function() { return fakeFirestore; };
+      fn.FieldValue = {
+        serverTimestamp: function() { return new Date(); }
+      };
+      return fn;
+    })()
+  };
+
+  console.log("🔧 Mock Firebase loaded. Login: admin@test.cz / admin1 nebo ucitel@test.cz / ucitel1");
+
+})();

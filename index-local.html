@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hodnocení testů — LOKÁLNÍ TEST</title>
+
+  <!-- Fonty (potřebuje internet, ale aplikace funguje i bez nich) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styly — STEJNÉ jako produkce -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/evaluate.css">
+
+  <!--
+    ⚠️ ŽÁDNÝ Firebase SDK se nenačítá!
+    Místo toho se načítá mock-firebase.js, který vše simuluje v paměti.
+  -->
+  <script src="js/mock-firebase.js"></script>
+
+  <!-- React -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Konfigurace -->
+  <script src="js/config.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <div style="position:fixed;bottom:8px;left:50%;transform:translateX(-50%);background:#f59e0b;color:#000;padding:4px 16px;border-radius:99px;font-size:12px;font-weight:600;z-index:9999;pointer-events:none;">
+    ⚡ LOKÁLNÍ TESTOVÁNÍ — data jen v paměti
+  </div>
+
+  <!--
+    POŘADÍ SOUBORŮ JE DŮLEŽITÉ!
+    Stejné jako v index.html
+  -->
+  <script type="text/babel" src="js/init.jsx"></script>
+  <script type="text/babel" src="js/modal.jsx"></script>
+  <script type="text/babel" src="js/auth.jsx"></script>
+  <script type="text/babel" src="js/sidebar.jsx"></script>
+  <script type="text/babel" src="js/admin-users.jsx"></script>
+  <script type="text/babel" src="js/admin-tests.jsx"></script>
+  <script type="text/babel" src="js/admin-groups.jsx"></script>
+  <script type="text/babel" src="js/task-cells.jsx"></script>
+  <script type="text/babel" src="js/evaluate.jsx"></script>
+  <script type="text/babel" src="js/app.jsx"></script>
+</body>
+</html>
