@@ -1,112 +1,97 @@
 // ═══════════════════════════════════════════════════════════════
 // MOCK FIREBASE — simuluje Auth + Firestore v paměti
 // Pro lokální testování bez internetu.
+// Přihlášení: admin@test.cz / admin1 nebo ucitel@test.cz / ucitel1
 // ═══════════════════════════════════════════════════════════════
 
 (function() {
 
-  // ─── Fake data ───
-  var mockUsers = {
-    "admin-uid-001": {
-      email: "admin@test.cz",
-      name: "Admin Testovací",
-      role: "admin",
-      createdAt: new Date()
+  // ─── Data v paměti ───
+  var collections = {
+    users: {
+      "admin-uid-001": {
+        email: "admin@test.cz",
+        name: "Admin Testovací",
+        role: "admin",
+        createdAt: new Date()
+      },
+      "teacher-uid-001": {
+        email: "ucitel@test.cz",
+        name: "Jan Učitel",
+        role: "teacher",
+        createdAt: new Date()
+      }
     },
-    "teacher-uid-001": {
-      email: "ucitel@test.cz",
-      name: "Jan Učitel",
-      role: "teacher",
-      createdAt: new Date()
-    }
+    tests: {},
+    groups: {}
   };
 
-  var mockPasswords = {
+  var passwords = {
     "admin@test.cz": { password: "admin1", uid: "admin-uid-001" },
     "ucitel@test.cz": { password: "ucitel1", uid: "teacher-uid-001" }
   };
 
-  var mockTests = {};
-  var mockGroups = {};
   var idCounter = 1000;
-
   function nextId() { return "mock-" + (++idCounter); }
 
-  // ─── Collections storage ───
-  var collections = {
-    users: mockUsers,
-    tests: mockTests,
-    groups: mockGroups
-  };
-
-  // ─── Fake Firestore Document ───
+  // ─── Firestore Document ───
   function makeDoc(id, data) {
     return {
       id: id,
-      exists: data !== undefined,
+      exists: data !== undefined && data !== null,
       data: function() { return data ? JSON.parse(JSON.stringify(data)) : undefined; }
     };
   }
 
-  function makeSnapshot(collectionName, filter) {
-    var col = collections[collectionName] || {};
-    var docs = [];
-    Object.keys(col).forEach(function(id) {
-      var d = col[id];
-      if (filter && !filter(d)) return;
-      docs.push(makeDoc(id, d));
-    });
-    return { docs: docs };
-  }
-
-  // ─── Fake Firestore Query ───
-  function FakeQuery(collectionName) {
-    this._col = collectionName;
+  // ─── Firestore Query ───
+  function FakeQuery(colName) {
+    this._col = colName;
     this._filters = [];
-    this._orderField = null;
   }
 
   FakeQuery.prototype.where = function(field, op, value) {
     var q = new FakeQuery(this._col);
     q._filters = this._filters.concat([{ field: field, op: op, value: value }]);
-    q._orderField = this._orderField;
     return q;
   };
 
-  FakeQuery.prototype.orderBy = function(field, dir) {
+  FakeQuery.prototype.orderBy = function() {
     var q = new FakeQuery(this._col);
     q._filters = this._filters.slice();
-    q._orderField = field;
     return q;
   };
 
   FakeQuery.prototype.get = function() {
+    var col = collections[this._col] || {};
     var filters = this._filters;
-    var filterFn = function(d) {
-      return filters.every(function(f) {
+    var docs = [];
+    Object.keys(col).forEach(function(id) {
+      var d = col[id];
+      var pass = filters.every(function(f) {
         var val = d[f.field];
         if (f.op === '==') return val === f.value;
         if (f.op === 'array-contains') return Array.isArray(val) && val.indexOf(f.value) !== -1;
         return true;
       });
-    };
-    return Promise.resolve(makeSnapshot(this._col, filterFn));
+      if (pass) docs.push(makeDoc(id, d));
+    });
+    return Promise.resolve({ docs: docs });
   };
 
   FakeQuery.prototype.doc = function(id) {
-    var col = this._col;
+    var colName = this._col;
     return {
       get: function() {
-        var data = collections[col] ? collections[col][id] : undefined;
+        var data = (collections[colName] || {})[id];
         return Promise.resolve(makeDoc(id, data));
       },
       set: function(data) {
-        if (!collections[col]) collections[col] = {};
-        collections[col][id] = JSON.parse(JSON.stringify(data));
+        if (!collections[colName]) collections[colName] = {};
+        collections[colName][id] = JSON.parse(JSON.stringify(data));
         return Promise.resolve();
       },
       delete: function() {
-        if (collections[col]) delete collections[col][id];
+        if (collections[colName]) delete collections[colName][id];
         return Promise.resolve();
       }
     };
@@ -114,67 +99,93 @@
 
   FakeQuery.prototype.add = function(data) {
     var id = nextId();
-    var col = this._col;
-    if (!collections[col]) collections[col] = {};
-    collections[col][id] = JSON.parse(JSON.stringify(data));
+    if (!collections[this._col]) collections[this._col] = {};
+    collections[this._col][id] = JSON.parse(JSON.stringify(data));
     return Promise.resolve({ id: id });
   };
 
-  // ─── Fake Auth ───
+  // ─── Firestore instance ───
+  function createFirestore() {
+    return {
+      collection: function(name) { return new FakeQuery(name); }
+    };
+  }
+
+  // ─── Auth instance ───
   var currentUser = null;
   var authListeners = [];
 
   function notifyAuth() {
-    authListeners.forEach(function(fn) { fn(currentUser); });
+    authListeners.forEach(function(fn) {
+      try { fn(currentUser); } catch(e) { console.error(e); }
+    });
   }
 
-  var fakeAuth = {
-    onAuthStateChanged: function(fn) {
-      authListeners.push(fn);
-      setTimeout(function() { fn(currentUser); }, 50);
-      return function() {
-        authListeners = authListeners.filter(function(f) { return f !== fn; });
-      };
-    },
-    signInWithEmailAndPassword: function(email, password) {
-      var entry = mockPasswords[email];
-      if (!entry) return Promise.reject({ code: 'auth/user-not-found' });
-      if (entry.password !== password) return Promise.reject({ code: 'auth/wrong-password' });
-      currentUser = { uid: entry.uid, email: email };
-      notifyAuth();
-      return Promise.resolve({ user: currentUser });
-    },
-    signOut: function() {
-      currentUser = null;
-      notifyAuth();
-      return Promise.resolve();
-    },
-    createUserWithEmailAndPassword: function(email, password) {
-      var uid = nextId();
-      mockPasswords[email] = { password: password, uid: uid };
-      return Promise.resolve({ user: { uid: uid, email: email } });
-    }
+  function createAuth(isSecondary) {
+    return {
+      onAuthStateChanged: function(fn) {
+        if (isSecondary) {
+          setTimeout(function() { fn(null); }, 10);
+          return function() {};
+        }
+        authListeners.push(fn);
+        setTimeout(function() { fn(currentUser); }, 50);
+        return function() {
+          authListeners = authListeners.filter(function(f) { return f !== fn; });
+        };
+      },
+      signInWithEmailAndPassword: function(email, pwd) {
+        var entry = passwords[email];
+        if (!entry) return Promise.reject({ code: 'auth/user-not-found', message: 'Účet nenalezen.' });
+        if (entry.password !== pwd) return Promise.reject({ code: 'auth/wrong-password', message: 'Nesprávné heslo.' });
+        currentUser = { uid: entry.uid, email: email };
+        if (!isSecondary) notifyAuth();
+        return Promise.resolve({ user: currentUser });
+      },
+      createUserWithEmailAndPassword: function(email, pwd) {
+        var uid = nextId();
+        passwords[email] = { password: pwd, uid: uid };
+        return Promise.resolve({ user: { uid: uid, email: email } });
+      },
+      signOut: function() {
+        if (!isSecondary) {
+          currentUser = null;
+          notifyAuth();
+        }
+        return Promise.resolve();
+      }
+    };
+  }
+
+  // ─── Firebase global objekt ───
+  var mainAuth = createAuth(false);
+  var mainFirestore = createFirestore();
+
+  // Funkce firebase.firestore() + firebase.firestore.FieldValue
+  function firestoreFn() { return mainFirestore; }
+  firestoreFn.FieldValue = {
+    serverTimestamp: function() { return new Date(); }
   };
 
-  // ─── Fake Firestore ───
-  var fakeFirestore = {
-    collection: function(name) { return new FakeQuery(name); }
-  };
-
-  // ─── Fake Firebase global ───
   window.firebase = {
-    initializeApp: function() { return {}; },
-    auth: function() { return fakeAuth; },
-    firestore: function() { return fakeFirestore; },
-    firestore: (function() {
-      var fn = function() { return fakeFirestore; };
-      fn.FieldValue = {
-        serverTimestamp: function() { return new Date(); }
-      };
-      return fn;
-    })()
+    initializeApp: function(config, name) {
+      // Sekundární app (pro vytváření uživatelů)
+      if (name) {
+        var secAuth = createAuth(true);
+        return {
+          auth: function() { return secAuth; },
+          delete: function() { return Promise.resolve(); }
+        };
+      }
+      // Hlavní app
+      return {};
+    },
+    auth: function() { return mainAuth; },
+    firestore: firestoreFn
   };
 
-  console.log("🔧 Mock Firebase loaded. Login: admin@test.cz / admin1 nebo ucitel@test.cz / ucitel1");
+  console.log("%c🔧 Mock Firebase loaded", "color: #f59e0b; font-weight: bold; font-size: 14px;");
+  console.log("   Přihlášení: admin@test.cz / admin1");
+  console.log("   Přihlášení: ucitel@test.cz / ucitel1");
 
 })();
