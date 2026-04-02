@@ -1,4 +1,4 @@
-FOLDER DUMP - 2026-03-20 13:54:11.042644
+FOLDER DUMP - 2026-04-02 15:49:55.266691
 ================================================================================
 
 DIRECTORY TREE
@@ -25,6 +25,7 @@ ROOT: /Users/jirka/Documents/vyhodnocovani_testu_app/vyhodnocovani_testu_app
     [F] config.js
     [F] evaluate.jsx
     [F] init.jsx
+    [F] modal.jsx
     [F] sidebar.jsx
     [F] task-cells.jsx
   [D] tests
@@ -74,9 +75,10 @@ FILE: index.html
 
   <!--
     POŘADÍ SOUBORŮ JE DŮLEŽITÉ!
-    config.js → init → auth → sidebar → admin stránky → buňky → evaluate → app
+    config.js → init → modal → auth → sidebar → admin stránky → buňky → evaluate → app
   -->
   <script type="text/babel" src="js/init.jsx"></script>
+  <script type="text/babel" src="js/modal.jsx"></script>
   <script type="text/babel" src="js/auth.jsx"></script>
   <script type="text/babel" src="js/sidebar.jsx"></script>
   <script type="text/babel" src="js/admin-users.jsx"></script>
@@ -290,36 +292,38 @@ FILE: css/components.css
 .badge-admin { background: #ede9fe; color: #7c3aed; }
 .badge-teacher { background: var(--accent-light); color: var(--accent); }
 
-/* Modal - ČISTÉ A NEPRŮSTŘELNÉ ŘEŠENÍ */
-.modal-overlay {
+/* ═══════════════════════════════════════════════════════════
+   MODÁLNÍ OKNO — nativní <dialog> element
+   ═══════════════════════════════════════════════════════════ */
+dialog.modal-dialog {
+  border: none;
+  border-radius: 16px;
+  padding: 0;
+  max-width: 640px;
+  width: calc(100% - 48px);
+  background: transparent;
+  overflow: visible;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 1000;
-  overflow-y: auto; /* Scrollování je nyní na celém tmavém pozadí */
-  padding: 24px;
-  display: block; /* Odstraněn Flexbox, který působil odříznutí */
+  margin: auto;
+  height: fit-content;
 }
-
-.modal {
+dialog.modal-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+dialog.modal-dialog-large {
+  max-width: 1200px;
+}
+.modal-dialog-body {
   background: var(--bg-card);
   border-radius: 16px;
   padding: 32px;
-  width: 100%;
-  max-width: 640px;
-  margin: 10vh auto; /* Odskočí 10 % z horní hrany obrazovky, vycentruje se zleva/zprava */
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
-
-.modal h2 {
+.modal-dialog-body h2 {
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 20px;
-}
-
-/* Velký modál */
-.modal.modal-large {
-  max-width: 1200px;
 }
 
 /* Select dropdown */
@@ -343,7 +347,7 @@ FILE: css/components.css
 /* JSON textarea */
 .json-textarea {
   width: 100%;
-  min-height: 400px; /* Vyšší základní výška pro lepší editaci, ale bez rizika useknutí */
+  min-height: 400px;
   padding: 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
@@ -1716,44 +1720,40 @@ function GroupsPage() {
         )}
       </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={function(e) { if (e.target === e.currentTarget) setShowModal(false); }}>
-          <div className="modal fade-in">
-            <h2>Nová skupina</h2>
-            <div className="form-group">
-              <label>Název skupiny</label>
-              <input className="form-input" placeholder="5. ročník – sada A"
-                value={groupName} onChange={function(e) { setGroupName(e.target.value); }} />
-            </div>
-            <div className="form-group">
-              <label>Učitelé</label>
-              {users.map(function(u) { return (
-                <label key={u.id} style={{display:'flex', alignItems:'center', gap:'8px', padding:'6px 0', cursor:'pointer', fontSize:'14px'}}>
-                  <input type="checkbox" checked={selectedUsers.includes(u.id)}
-                    onChange={function() { toggleItem(selectedUsers, setSelectedUsers, u.id); }} />
-                  {u.name || u.email}
-                </label>
-              ); })}
-              {users.length === 0 && <p style={{color:'var(--text-muted)', fontSize:'13px'}}>Žádní učitelé.</p>}
-            </div>
-            <div className="form-group">
-              <label>Testy</label>
-              {tests.map(function(t) { return (
-                <label key={t.id} style={{display:'flex', alignItems:'center', gap:'8px', padding:'6px 0', cursor:'pointer', fontSize:'14px'}}>
-                  <input type="checkbox" checked={selectedTests.includes(t.id)}
-                    onChange={function() { toggleItem(selectedTests, setSelectedTests, t.id); }} />
-                  {t.name}
-                </label>
-              ); })}
-              {tests.length === 0 && <p style={{color:'var(--text-muted)', fontSize:'13px'}}>Žádné testy.</p>}
-            </div>
-            <div style={{display:'flex', gap:'10px', marginTop:'24px'}}>
-              <button className="btn btn-secondary" onClick={function() { setShowModal(false); }} style={{flex:1}}>Zrušit</button>
-              <button className="btn btn-primary" onClick={saveGroup} disabled={!groupName} style={{flex:1, width:'auto'}}>Uložit</button>
-            </div>
-          </div>
+      <Modal open={showModal} onClose={function() { setShowModal(false); }}>
+        <h2>Nová skupina</h2>
+        <div className="form-group">
+          <label>Název skupiny</label>
+          <input className="form-input" placeholder="5. ročník – sada A"
+            value={groupName} onChange={function(e) { setGroupName(e.target.value); }} />
         </div>
-      )}
+        <div className="form-group">
+          <label>Učitelé</label>
+          {users.map(function(u) { return (
+            <label key={u.id} style={{display:'flex', alignItems:'center', gap:'8px', padding:'6px 0', cursor:'pointer', fontSize:'14px'}}>
+              <input type="checkbox" checked={selectedUsers.includes(u.id)}
+                onChange={function() { toggleItem(selectedUsers, setSelectedUsers, u.id); }} />
+              {u.name || u.email}
+            </label>
+          ); })}
+          {users.length === 0 && <p style={{color:'var(--text-muted)', fontSize:'13px'}}>Žádní učitelé.</p>}
+        </div>
+        <div className="form-group">
+          <label>Testy</label>
+          {tests.map(function(t) { return (
+            <label key={t.id} style={{display:'flex', alignItems:'center', gap:'8px', padding:'6px 0', cursor:'pointer', fontSize:'14px'}}>
+              <input type="checkbox" checked={selectedTests.includes(t.id)}
+                onChange={function() { toggleItem(selectedTests, setSelectedTests, t.id); }} />
+              {t.name}
+            </label>
+          ); })}
+          {tests.length === 0 && <p style={{color:'var(--text-muted)', fontSize:'13px'}}>Žádné testy.</p>}
+        </div>
+        <div style={{display:'flex', gap:'10px', marginTop:'24px'}}>
+          <button className="btn btn-secondary" onClick={function() { setShowModal(false); }} style={{flex:1}}>Zrušit</button>
+          <button className="btn btn-primary" onClick={saveGroup} disabled={!groupName} style={{flex:1, width:'auto'}}>Uložit</button>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -1879,44 +1879,40 @@ function TestsPage() {
         )}
       </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={function(e) { if (e.target === e.currentTarget) setShowModal(false); }}>
-          <div className="modal modal-large fade-in">
-            <h2>Nahrát nový test</h2>
-            {error && <div className="error-msg">{error}</div>}
+      <Modal open={showModal} onClose={function() { setShowModal(false); }} large>
+        <h2>Nahrát nový test</h2>
+        {error && <div className="error-msg">{error}</div>}
 
-            <div className="form-group">
-              <label>Nahrát JSON soubor</label>
-              <div className="file-upload-zone" onClick={function() { document.getElementById('jsonUpload').click(); }}>
-                <input id="jsonUpload" type="file" accept=".json" onChange={handleFileUpload} />
-                <p style={{color:'var(--text-muted)'}}>📁 Klikněte pro výběr JSON souboru</p>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Název testu</label>
-              <input className="form-input" placeholder="Matematika 5 – Varianta A"
-                value={testName} onChange={function(e) { setTestName(e.target.value); }} />
-            </div>
-
-            <div className="form-group">
-              <label>Odpovědi (JSON) — nebo vložte ručně</label>
-              <textarea className="json-textarea" placeholder='{"1.1": {"answer": "42", "points": 2}, ...}'
-                value={jsonText} onChange={function(e) { setJsonText(e.target.value); }} />
-            </div>
-
-            <div style={{display:'flex', gap:'10px', marginTop:'24px'}}>
-              <button className="btn btn-secondary" onClick={function() { setShowModal(false); setError(''); }} style={{flex:1}}>
-                Zrušit
-              </button>
-              <button className="btn btn-primary" onClick={saveTest}
-                disabled={saving || !testName || !jsonText} style={{flex:1, width:'auto'}}>
-                {saving ? 'Ukládám…' : 'Uložit test'}
-              </button>
-            </div>
+        <div className="form-group">
+          <label>Nahrát JSON soubor</label>
+          <div className="file-upload-zone" onClick={function() { document.getElementById('jsonUpload').click(); }}>
+            <input id="jsonUpload" type="file" accept=".json" onChange={handleFileUpload} />
+            <p style={{color:'var(--text-muted)'}}>📁 Klikněte pro výběr JSON souboru</p>
           </div>
         </div>
-      )}
+
+        <div className="form-group">
+          <label>Název testu</label>
+          <input className="form-input" placeholder="Matematika 5 – Varianta A"
+            value={testName} onChange={function(e) { setTestName(e.target.value); }} />
+        </div>
+
+        <div className="form-group">
+          <label>Odpovědi (JSON) — nebo vložte ručně</label>
+          <textarea className="json-textarea" placeholder='{"1.1": {"answer": "42", "points": 2}, ...}'
+            value={jsonText} onChange={function(e) { setJsonText(e.target.value); }} />
+        </div>
+
+        <div style={{display:'flex', gap:'10px', marginTop:'24px'}}>
+          <button className="btn btn-secondary" onClick={function() { setShowModal(false); setError(''); }} style={{flex:1}}>
+            Zrušit
+          </button>
+          <button className="btn btn-primary" onClick={saveTest}
+            disabled={saving || !testName || !jsonText} style={{flex:1, width:'auto'}}>
+            {saving ? 'Ukládám…' : 'Uložit test'}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -2025,47 +2021,43 @@ function UsersPage() {
         </table>
       </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={function(e) { if (e.target === e.currentTarget) setShowModal(false); }}>
-          <div className="modal fade-in">
-            <h2>Nový uživatel</h2>
-            {error && <div className="error-msg">{error}</div>}
-            <div className="form-group">
-              <label>Jméno</label>
-              <input className="form-input" placeholder="Jan Novák"
-                value={newUser.name} onChange={function(e) { setNewUser({...newUser, name: e.target.value}); }} />
-            </div>
-            <div className="form-group">
-              <label>Email</label>
-              <input className="form-input" type="email" placeholder="jan@skola.cz"
-                value={newUser.email} onChange={function(e) { setNewUser({...newUser, email: e.target.value}); }} />
-            </div>
-            <div className="form-group">
-              <label>Heslo</label>
-              <input className="form-input" type="text" placeholder="min. 6 znaků"
-                value={newUser.password} onChange={function(e) { setNewUser({...newUser, password: e.target.value}); }} />
-            </div>
-            <div className="form-group">
-              <label>Role</label>
-              <select className="form-select" value={newUser.role}
-                onChange={function(e) { setNewUser({...newUser, role: e.target.value}); }}>
-                <option value="teacher">Učitel</option>
-                <option value="admin">Administrátor</option>
-              </select>
-            </div>
-            <div style={{display:'flex', gap:'10px', marginTop:'24px'}}>
-              <button className="btn btn-secondary" onClick={function() { setShowModal(false); }} style={{flex:1}}>
-                Zrušit
-              </button>
-              <button className="btn btn-primary" onClick={createUser}
-                disabled={creating || !newUser.email || !newUser.password}
-                style={{flex:1, width:'auto'}}>
-                {creating ? 'Vytvářím…' : 'Vytvořit'}
-              </button>
-            </div>
-          </div>
+      <Modal open={showModal} onClose={function() { setShowModal(false); }}>
+        <h2>Nový uživatel</h2>
+        {error && <div className="error-msg">{error}</div>}
+        <div className="form-group">
+          <label>Jméno</label>
+          <input className="form-input" placeholder="Jan Novák"
+            value={newUser.name} onChange={function(e) { setNewUser({...newUser, name: e.target.value}); }} />
         </div>
-      )}
+        <div className="form-group">
+          <label>Email</label>
+          <input className="form-input" type="email" placeholder="jan@skola.cz"
+            value={newUser.email} onChange={function(e) { setNewUser({...newUser, email: e.target.value}); }} />
+        </div>
+        <div className="form-group">
+          <label>Heslo</label>
+          <input className="form-input" type="text" placeholder="min. 6 znaků"
+            value={newUser.password} onChange={function(e) { setNewUser({...newUser, password: e.target.value}); }} />
+        </div>
+        <div className="form-group">
+          <label>Role</label>
+          <select className="form-select" value={newUser.role}
+            onChange={function(e) { setNewUser({...newUser, role: e.target.value}); }}>
+            <option value="teacher">Učitel</option>
+            <option value="admin">Administrátor</option>
+          </select>
+        </div>
+        <div style={{display:'flex', gap:'10px', marginTop:'24px'}}>
+          <button className="btn btn-secondary" onClick={function() { setShowModal(false); }} style={{flex:1}}>
+            Zrušit
+          </button>
+          <button className="btn btn-primary" onClick={createUser}
+            disabled={creating || !newUser.email || !newUser.password}
+            style={{flex:1, width:'auto'}}>
+            {creating ? 'Vytvářím…' : 'Vytvořit'}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -2500,7 +2492,7 @@ FILE: js/init.jsx
 // ═══════════════════════════════════════════════════════════════
 
 // React hooks (var = globální, dostupné ve všech souborech)
-var { useState, useEffect, useCallback, useMemo, createContext, useContext } = React;
+var { useState, useEffect, useCallback, useMemo, useRef, createContext, useContext } = React;
 
 // Firebase
 var app = firebase.initializeApp(firebaseConfig);
@@ -2509,6 +2501,64 @@ var db = firebase.firestore();
 
 // Auth context (sdílený mezi auth.jsx a ostatními)
 var AuthContext = createContext(null);
+--------------------------------------------------------------------------------
+
+FILE: js/modal.jsx
+----------------------------------------
+// ═══════════════════════════════════════════════════════════════
+// MODÁLNÍ OKNO — postavené na nativním <dialog> elementu
+// Prohlížeč sám řeší pozicování, scrollování i backdrop.
+// ═══════════════════════════════════════════════════════════════
+
+function Modal({ open, onClose, large, children }) {
+  var ref = useRef(null);
+
+  useEffect(function() {
+    var dialog = ref.current;
+    if (!dialog) return;
+
+    if (open && !dialog.open) {
+      dialog.showModal();
+    } else if (!open && dialog.open) {
+      dialog.close();
+    }
+  }, [open]);
+
+  // Zavření kliknutím na backdrop (oblast mimo modál)
+  var handleBackdropClick = function(e) {
+    var dialog = ref.current;
+    if (!dialog) return;
+    var rect = dialog.getBoundingClientRect();
+    var clickedInside = (
+      e.clientX >= rect.left &&
+      e.clientX <= rect.right &&
+      e.clientY >= rect.top &&
+      e.clientY <= rect.bottom
+    );
+    if (!clickedInside) {
+      onClose();
+    }
+  };
+
+  // Zavření klávesou Escape (prohlížeč to dělá sám, ale musíme sync stav)
+  var handleCancel = function(e) {
+    e.preventDefault();
+    onClose();
+  };
+
+  return (
+    <dialog
+      ref={ref}
+      className={'modal-dialog' + (large ? ' modal-dialog-large' : '')}
+      onClick={handleBackdropClick}
+      onCancel={handleCancel}
+    >
+      <div className="modal-dialog-body" onClick={function(e) { e.stopPropagation(); }}>
+        {children}
+      </div>
+    </dialog>
+  );
+}
 --------------------------------------------------------------------------------
 
 FILE: js/sidebar.jsx

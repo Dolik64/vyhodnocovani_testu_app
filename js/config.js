@@ -33,10 +33,15 @@ const SHEET_LAYOUT = [
     { cols: 1, tasks: ["7"] },
   ]},
   { label: "Úlohy 8.1–8.3 (Ano / Ne)", rows: [
-    { cols: 3, tasks: ["8.1", "8.2", "8.3"] },
+    { cols: 1, tasks: ["8.1"] },
+    { cols: 1, tasks: ["8.2"] },
+    { cols: 1, tasks: ["8.3"] },
   ]},
   { label: "Úlohy 9–12 (ABCDE)", rows: [
-    { cols: 4, tasks: ["9", "10", "11", "12"] },
+    { cols: 1, tasks: ["9"] },
+    { cols: 1, tasks: ["10"] },
+    { cols: 1, tasks: ["11"] },
+    { cols: 1, tasks: ["12"] },
   ]},
   { label: "Úlohy 13–14 (otevřené odpovědi)", rows: [
     { cols: 2, tasks: ["13.1", "13.2"] },
